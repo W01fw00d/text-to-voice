@@ -1,0 +1,23 @@
+{
+  "name": "earphones-game",
+  "version": "1.0.0",
+  "description": "WIP",
+  "main": "main.html",
+  "directories": {
+    "lib": "lib"
+  },
+  "dependencies": {
+    "gtts": "^0.2.1"
+  },
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/W01fw00d/earphones-game.git"
+  },
+  "author": "W01fw00d",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/W01fw00d/earphones-game/issues"
+  },
+  "homepage": "https://github.com/W01fw00d/earphones-game#readme"
+}
