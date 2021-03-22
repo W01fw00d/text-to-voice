@@ -31,5 +31,5 @@ const transformFile = (filename) => {
   readFile(filename);
 };
 
-const filename = "cad1_cap1";
+const filename = "cad1/cad1_cap2";
 transformFile(filename);
