@@ -1,11 +1,35 @@
+var fs = require("fs");
 const gTTS = require("gtts");
 
-var speech = "Esto es un Cadáver Exquisito";
-var gtts = new gTTS(speech, "es");
+const transformFile = (filename) => {
+  const sourceFolder = "src/";
+  const inputFolder = sourceFolder + "input/";
+  const outputFolder = sourceFolder + "output/";
 
-gtts.save("src/output/Voice.mp3", function (err, result) {
-  if (err) {
-    throw new Error(err);
-  }
-  console.log("Text to speech converted!");
-});
+  const generateVoiceFile = (text, filename) => {
+    var gtts = new gTTS(text, "es");
+
+    gtts.save(`${outputFolder}${filename}.mp3`, (error, _) => {
+      if (error) {
+        throw new Error(error);
+      }
+      console.log(`${filename} transformed.`);
+    });
+  };
+
+  const readFile = (filename) => {
+    fs.readFile(`${inputFolder}${filename}`, "utf8", (error, text) => {
+      if (error) {
+        throw new Error(error);
+      }
+
+      console.log(`${filename} read.`);
+      generateVoiceFile(text, filename);
+    });
+  };
+
+  readFile(filename);
+};
+
+const filename = "cad1_cap1";
+transformFile(filename);
