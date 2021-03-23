@@ -1,49 +1,57 @@
 const fs = require("fs");
 const gTTS = require("gtts");
-const audioCombiner = require("./src/scripts/audio-combiner.js");
 
 const transformFile = (filename) => {
   const SOURCE_FOLDER = "src/";
   const INPUT_FOLDER = SOURCE_FOLDER + "input/";
   const OUTPUT_FOLDER = SOURCE_FOLDER + "output/";
-  const MP3_EXTENSION = ".wav"; //".mp3"
+  const FILE_EXTENSION = ".wav"; //".mp3"
   const SPAIN_SPANISH = "es-es";
   const AMERICAN_SPANISH = "es-us";
   const VOICES = [SPAIN_SPANISH, AMERICAN_SPANISH];
   const UTF_8 = "utf8";
 
-  const generateVoiceFile = (text, filename, voice) => {
+  const generateVoiceFile = (text, filename, voice, callback) => {
     var gtts = new gTTS(text, voice);
 
-    gtts.save(`${OUTPUT_FOLDER}${filename}${MP3_EXTENSION}`, (error, _) => {
+    gtts.save(`${OUTPUT_FOLDER}${filename}${FILE_EXTENSION}`, (error, _) => {
       if (error) {
         throw new Error(error);
       }
       console.log(`${filename} transformed.`);
+      callback();
     });
   };
 
-  const combineVoiceFiles = (filenames, outputFilename) => {
-    const combineFiles = (segmentFile) => {
-      audioCombiner.combineSamples(
-        `${OUTPUT_FOLDER}${segmentFile}${MP3_EXTENSION}`,
-        `${OUTPUT_FOLDER}${outputFilename}${MP3_EXTENSION}`,
-        `${OUTPUT_FOLDER}${outputFilename}${MP3_EXTENSION}`,
-        (error) => {
-          if (error) {
-            throw new Error(error);
-          }
-
-          console.log(
-            `${segmentFile} file was included into ${outputFilename}`
-          );
-        }
+  const combineVoiceFiles = (filenames, outputFilename, callback) => {
+    console.log(
+      "combineVoiceFiles",
+      `${OUTPUT_FOLDER}${outputFilename}${FILE_EXTENSION}`
+    );
+    var fs = require("fs"),
+      stream,
+      currentfile,
+      dhh = fs.createWriteStream(
+        `${OUTPUT_FOLDER}${outputFilename}${FILE_EXTENSION}`
       );
-    };
 
-    audioCombiner.soxPath = "sox";
+    let index = 0;
 
-    filenames.forEach(combineFiles);
+    function main() {
+      if (index >= filenames.length) {
+        dhh.end("Done");
+        return;
+      }
+      currentfile = `${OUTPUT_FOLDER}` + filenames[index] + FILE_EXTENSION;
+      stream = fs.createReadStream(currentfile);
+      stream.pipe(dhh, { end: false });
+      stream.on("end", function () {
+        console.log(currentfile + " appended");
+        index++;
+        main();
+      });
+    }
+    main();
   };
 
   const readFile = (filename) => {
@@ -61,41 +69,53 @@ const transformFile = (filename) => {
 
       let currentVoiceIndex = 1;
 
-      //Instead of forEach, do waits for each file read
-      // Try to save voice as .wav
-      // If cannot save directly as wav, find a way to convert from mp3 to wav or any extension sox can understand
-      replaceAll(text, "–", "-")
-        .split("\n")
-        .forEach((textSegment, textSegmentIndex) => {
-          const isDialogue = (string) => string[0] === "-";
+      let textSegmentIndex = 0;
+      let textSubSegmentIndex = 0;
+      const segmentArray = replaceAll(text, "–", "-").split("\n");
 
-          currentVoiceIndex = isDialogue(textSegment) ? 0 : 1;
+      const iterate = () => {
+        const callback = () => {
+          textSubSegmentIndex++;
 
-          textSegment
-            .split("-")
-            .forEach((textSubSegment, textSubSegmentIndex) => {
-              if (textSubSegment) {
-                const isOdd = (number) => number % 2;
+          if (textSubSegmentIndex < subSegmentArray.length) {
+            iterate();
+          } else {
+            textSegmentIndex++;
 
-                currentVoiceIndex = isOdd(textSubSegmentIndex);
+            if (textSegmentIndex < segmentArray.length) {
+              textSubSegmentIndex = 0;
+              iterate();
+            }
+          }
+        };
 
-                console.log(`${currentVoiceIndex}. ${textSubSegment}`);
-                const segmentFilename = `${filename}${
-                  textSegmentIndex === 0 && textSubSegmentIndex === 0
-                    ? ""
-                    : `_${textSegmentIndex}_${textSubSegmentIndex}`
-                }`;
-                segmentsFilenames.push(segmentFilename);
-                /* generateVoiceFile(
-                  textSubSegment,
-                  segmentFilename,
-                  VOICES[currentVoiceIndex]
-                ); */
-              }
-            });
-        });
+        const subSegmentArray = segmentArray[textSegmentIndex].split("-");
+        const textSubSegment = subSegmentArray[textSubSegmentIndex];
+        if (textSubSegment && textSubSegment.trim().length > 0) {
+          const isOdd = (number) => number % 2;
 
-      //combineVoiceFiles(segmentsFilenames, filename);
+          currentVoiceIndex = isOdd(textSubSegmentIndex);
+
+          const segmentFilename = `${filename}${
+            textSegmentIndex === 0 && textSubSegmentIndex === 0
+              ? ""
+              : `_${textSegmentIndex}_${textSubSegmentIndex}`
+          }`;
+          segmentsFilenames.push(segmentFilename);
+          callback(); //
+          /* generateVoiceFile(
+            textSubSegment,
+            segmentFilename,
+            VOICES[currentVoiceIndex],
+            callback
+          ); */
+        } else {
+          callback();
+        }
+      };
+
+      iterate();
+      combineVoiceFiles(segmentsFilenames, filename);
     });
   };
 
