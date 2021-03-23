@@ -22,6 +22,8 @@ module.exports = {
     var command =
       this.soxPath +
       " " +
+      /*  "-t wav" +
+      " " + */
       "-m" +
       " " +
       file_1 +
