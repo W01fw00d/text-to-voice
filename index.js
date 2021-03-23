@@ -2,14 +2,17 @@ var fs = require("fs");
 const gTTS = require("gtts");
 
 const transformFile = (filename) => {
-  const sourceFolder = "src/";
-  const inputFolder = sourceFolder + "input/";
-  const outputFolder = sourceFolder + "output/";
+  const SOURCE_FOLDER = "src/";
+  const INPUT_FOLDER = SOURCE_FOLDER + "input/";
+  const OUTPUT_FOLDER = SOURCE_FOLDER + "output/";
+  const SPAIN_SPANISH = "es-es";
+  const AMERICAN_SPANISH = "es-us";
+  const UTF_8 = "utf8";
 
   const generateVoiceFile = (text, filename) => {
-    var gtts = new gTTS(text, "es");
+    var gtts = new gTTS(text, SPAIN_SPANISH);
 
-    gtts.save(`${outputFolder}${filename}.mp3`, (error, _) => {
+    gtts.save(`${OUTPUT_FOLDER}${filename}.mp3`, (error, _) => {
       if (error) {
         throw new Error(error);
       }
@@ -18,7 +21,7 @@ const transformFile = (filename) => {
   };
 
   const readFile = (filename) => {
-    fs.readFile(`${inputFolder}${filename}`, "utf8", (error, text) => {
+    fs.readFile(`${INPUT_FOLDER}${filename}`, UTF_8, (error, text) => {
       if (error) {
         throw new Error(error);
       }
