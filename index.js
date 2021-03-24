@@ -5,7 +5,7 @@ const transformFile = (filename) => {
   const SOURCE_FOLDER = "src/";
   const INPUT_FOLDER = SOURCE_FOLDER + "input/";
   const OUTPUT_FOLDER = SOURCE_FOLDER + "output/";
-  const FILE_EXTENSION = ".wav"; //".mp3"
+  const FILE_EXTENSION = ".mp3";
   const SPAIN_SPANISH = "es-es";
   const AMERICAN_SPANISH = "es-us";
   const VOICES = [SPAIN_SPANISH, AMERICAN_SPANISH];
@@ -23,7 +23,7 @@ const transformFile = (filename) => {
     });
   };
 
-  const combineVoiceFiles = (filenames, outputFilename, callback) => {
+  const combineVoiceFiles = (filenames, outputFilename) => {
     console.log(
       "combineVoiceFiles",
       `${OUTPUT_FOLDER}${outputFilename}${FILE_EXTENSION}`
@@ -39,7 +39,7 @@ const transformFile = (filename) => {
 
     function main() {
       if (index >= filenames.length) {
-        dhh.end("Done");
+        console.log("Task completed");
         return;
       }
       currentfile = `${OUTPUT_FOLDER}` + filenames[index] + FILE_EXTENSION;
@@ -85,6 +85,9 @@ const transformFile = (filename) => {
             if (textSegmentIndex < segmentArray.length) {
               textSubSegmentIndex = 0;
               iterate();
+            } else {
+              // End of iteration
+              combineVoiceFiles(segmentsFilenames, filename);
             }
           }
         };
@@ -102,25 +105,25 @@ const transformFile = (filename) => {
               : `_${textSegmentIndex}_${textSubSegmentIndex}`
           }`;
           segmentsFilenames.push(segmentFilename);
-          callback(); //
-          /* generateVoiceFile(
+          //console.log(`${currentVoiceIndex}. ${textSubSegment}`); //
+          //callback(); //
+          generateVoiceFile(
             textSubSegment,
             segmentFilename,
             VOICES[currentVoiceIndex],
             callback
-          ); */
+          );
         } else {
           callback();
         }
       };
 
       iterate();
-      combineVoiceFiles(segmentsFilenames, filename);
     });
   };
 
   readFile(filename);
 };
 
-const filename = "cad1/cad1_cap3";
+const filename = "cad1/cad1_cap5";
 transformFile(filename);
