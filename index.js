@@ -18,7 +18,7 @@ const transformFile = (filename) => {
       if (error) {
         throw new Error(error);
       }
-      console.log(`${filename} transformed.`);
+      console.log(`${filename} segment transformed.`);
       callback();
     });
   };
@@ -37,20 +37,21 @@ const transformFile = (filename) => {
 
     let index = 0;
 
-    function main() {
+    const main = () => {
       if (index >= filenames.length) {
-        console.log("Task completed");
+        console.log(`${outputFilename} transformed.`);
+        console.log("[Task completed]");
         return;
       }
       currentfile = `${OUTPUT_FOLDER}` + filenames[index] + FILE_EXTENSION;
       stream = fs.createReadStream(currentfile);
       stream.pipe(dhh, { end: false });
-      stream.on("end", function () {
+      stream.on("end", () => {
         console.log(currentfile + " appended");
         index++;
         main();
       });
-    }
+    };
     main();
   };
 
@@ -60,7 +61,7 @@ const transformFile = (filename) => {
         throw new Error(error);
       }
 
-      console.log(`${filename} read.`);
+      console.log(`${filename} read succesfully.`);
 
       let segmentsFilenames = [];
 
@@ -99,11 +100,7 @@ const transformFile = (filename) => {
 
           currentVoiceIndex = isOdd(textSubSegmentIndex);
 
-          const segmentFilename = `${filename}${
-            textSegmentIndex === 0 && textSubSegmentIndex === 0
-              ? ""
-              : `_${textSegmentIndex}_${textSubSegmentIndex}`
-          }`;
+          const segmentFilename = `${filename}_${textSegmentIndex}_${textSubSegmentIndex}`;
           segmentsFilenames.push(segmentFilename);
           //console.log(`${currentVoiceIndex}. ${textSubSegment}`); //
           //callback(); //
@@ -125,5 +122,6 @@ const transformFile = (filename) => {
   readFile(filename);
 };
 
-const filename = "cad1/cad1_cap5";
-transformFile(filename);
+// ----------------------------
+
+transformFile("cad1/cad1_cap6");
