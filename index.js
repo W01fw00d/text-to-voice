@@ -23,6 +23,15 @@ const transformFile = (filename) => {
     });
   };
 
+  const deleteSegmentFile = (file) => {
+    try {
+      fs.unlinkSync(file);
+      console.log(`${file} deleted.`);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const combineVoiceFiles = (filenames, outputFilename) => {
     console.log(
       "combineVoiceFiles",
@@ -30,7 +39,7 @@ const transformFile = (filename) => {
     );
     var fs = require("fs"),
       stream,
-      currentfile,
+      currentFile,
       dhh = fs.createWriteStream(
         `${OUTPUT_FOLDER}${outputFilename}${FILE_EXTENSION}`
       );
@@ -43,11 +52,12 @@ const transformFile = (filename) => {
         console.log("[Task completed]");
         return;
       }
-      currentfile = `${OUTPUT_FOLDER}` + filenames[index] + FILE_EXTENSION;
-      stream = fs.createReadStream(currentfile);
+      currentFile = `${OUTPUT_FOLDER}` + filenames[index] + FILE_EXTENSION;
+      stream = fs.createReadStream(currentFile);
       stream.pipe(dhh, { end: false });
       stream.on("end", () => {
-        console.log(currentfile + " appended");
+        console.log(currentFile + " appended");
+        deleteSegmentFile(currentFile);
         index++;
         main();
       });
@@ -124,4 +134,4 @@ const transformFile = (filename) => {
 
 // ----------------------------
 
-transformFile("cad1/cad1_cap6");
+transformFile("cad1/cad1_cap8");
