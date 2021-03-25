@@ -1,7 +1,7 @@
 const fs = require("fs");
 const gTTS = require("gtts");
 
-const transformFile = (filename) => {
+const transformFile = (filename, shallAddChapterNumber) => {
   const SOURCE_FOLDER = "src/";
   const INPUT_FOLDER = SOURCE_FOLDER + "input/";
   const OUTPUT_FOLDER = SOURCE_FOLDER + "output/";
@@ -65,11 +65,21 @@ const transformFile = (filename) => {
     main();
   };
 
-  const readFile = (filename) => {
+  const readFile = (filename, shallAddChapterNumber) => {
     fs.readFile(`${INPUT_FOLDER}${filename}`, UTF_8, (error, text) => {
       if (error) {
         throw new Error(error);
       }
+
+      const addChapterNumber = (text) => {
+        const splittedFilename = filename.split("_");
+        const chapterNumber = splittedFilename[
+          splittedFilename.length - 1
+        ].replace("cap", "");
+        text = `Capítulo ${chapterNumber}: ` + text;
+
+        return text;
+      };
 
       console.log(`${filename} read succesfully.`);
 
@@ -79,9 +89,13 @@ const transformFile = (filename) => {
         string.split(search).join(replacement);
 
       let currentVoiceIndex = 1;
-
       let textSegmentIndex = 0;
       let textSubSegmentIndex = 0;
+
+      if (shallAddChapterNumber) {
+        text = addChapterNumber(text);
+      }
+
       const segmentArray = replaceAll(text, "–", "-").split("\n");
 
       const iterate = () => {
@@ -129,9 +143,12 @@ const transformFile = (filename) => {
     });
   };
 
-  readFile(filename);
+  // ---
+
+  readFile(filename, shallAddChapterNumber);
 };
 
 // ----------------------------
 
-transformFile("cad1/cad1_cap8");
+const shallAddChapterNumber = true;
+transformFile("cad1/cad1_cap13", shallAddChapterNumber);
