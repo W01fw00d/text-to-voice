@@ -1,15 +1,27 @@
 const fs = require("fs");
 const gTTS = require("gtts");
 
-const transformFile = (filename, shallAddChapterNumber) => {
+const transformFile = () => {
   const SOURCE_FOLDER = "src/";
   const INPUT_FOLDER = SOURCE_FOLDER + "input/";
   const OUTPUT_FOLDER = SOURCE_FOLDER + "output/";
+  const SONGS_FOLDER = `${INPUT_FOLDER}songs/`;
+
   const FILE_EXTENSION = ".mp3";
   const SPAIN_SPANISH = "es-es";
   const AMERICAN_SPANISH = "es-us";
   const VOICES = [SPAIN_SPANISH, AMERICAN_SPANISH];
   const UTF_8 = "utf8";
+
+  // ---
+  const bookCode = "cad1";
+  const chapterCode = "cap15";
+  const shallAddChapterNumber = true;
+  // ---
+
+  const filename = `${bookCode}/${bookCode}_${chapterCode}`;
+  const openingSong = `${SONGS_FOLDER}opening/${bookCode}`;
+  const closureSong = `${SONGS_FOLDER}closure/${bookCode}`;
 
   const generateVoiceFile = (text, filename, voice, callback) => {
     var gtts = new gTTS(text, voice);
@@ -33,31 +45,29 @@ const transformFile = (filename, shallAddChapterNumber) => {
   };
 
   const combineVoiceFiles = (filenames, outputFilename) => {
-    console.log(
-      "combineVoiceFiles",
+    let stream;
+    let currentFile;
+    let dhh = fs.createWriteStream(
       `${OUTPUT_FOLDER}${outputFilename}${FILE_EXTENSION}`
     );
-    var fs = require("fs"),
-      stream,
-      currentFile,
-      dhh = fs.createWriteStream(
-        `${OUTPUT_FOLDER}${outputFilename}${FILE_EXTENSION}`
-      );
-
     let index = 0;
 
     const main = () => {
       if (index >= filenames.length) {
-        console.log(`${outputFilename} transformed.`);
+        console.log(`${outputFilename} completed.`);
         console.log("[Task completed]");
         return;
       }
-      currentFile = `${OUTPUT_FOLDER}` + filenames[index] + FILE_EXTENSION;
+      currentFile = `${filenames[index]}${FILE_EXTENSION}`;
       stream = fs.createReadStream(currentFile);
       stream.pipe(dhh, { end: false });
       stream.on("end", () => {
         console.log(currentFile + " appended");
-        deleteSegmentFile(currentFile);
+
+        /* const folder = currentFile.split("/")[2]; //songs
+        if (folder !== "songs") {
+          deleteSegmentFile(currentFile);
+        } */
         index++;
         main();
       });
@@ -83,6 +93,7 @@ const transformFile = (filename, shallAddChapterNumber) => {
 
       console.log(`${filename} read succesfully.`);
 
+      //let segmentsFilenames = [openingSong]; //songs
       let segmentsFilenames = [];
 
       const replaceAll = (string, search, replacement) =>
@@ -112,6 +123,8 @@ const transformFile = (filename, shallAddChapterNumber) => {
               iterate();
             } else {
               // End of iteration
+              //segmentsFilenames.push(closureSong); //songs
+
               combineVoiceFiles(segmentsFilenames, filename);
             }
           }
@@ -125,7 +138,7 @@ const transformFile = (filename, shallAddChapterNumber) => {
           currentVoiceIndex = isOdd(textSubSegmentIndex);
 
           const segmentFilename = `${filename}_${textSegmentIndex}_${textSubSegmentIndex}`;
-          segmentsFilenames.push(segmentFilename);
+          segmentsFilenames.push(`${OUTPUT_FOLDER}${segmentFilename}`);
           //console.log(`${currentVoiceIndex}. ${textSubSegment}`); //
           //callback(); //
           generateVoiceFile(
@@ -143,12 +156,7 @@ const transformFile = (filename, shallAddChapterNumber) => {
     });
   };
 
-  // ---
-
   readFile(filename, shallAddChapterNumber);
 };
 
-// ----------------------------
-
-const shallAddChapterNumber = true;
-transformFile("cad1/cad1_cap13", shallAddChapterNumber);
+transformFile();
