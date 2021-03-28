@@ -9,6 +9,7 @@ const transformFile = () => {
   const SONGS_FOLDER = `${INPUT_FOLDER}songs/`;
 
   const AUDIO_EXTENSION = ".mp3";
+  const DOC_EXTENSION = ".txt";
   const SPAIN_SPANISH = "es-es";
   const AMERICAN_SPANISH = "es-us";
   const VOICES = [SPAIN_SPANISH, AMERICAN_SPANISH];
@@ -16,8 +17,8 @@ const transformFile = () => {
 
   // ---
   const bookCode = "cad1";
-  const chapterCode = "cap13";
-  const shallAddChapterNumber = true;
+  const chapterCode = "cap14";
+  const shallAddChapterNumber = false;
   // ---
 
   const filename = `${bookCode}/${bookCode}_${chapterCode}`;
@@ -45,12 +46,11 @@ const transformFile = () => {
     }
   };
 
-  const combineVoiceFilesStreamApproach = (filenames, outputFilename) => {
+  const combineVoiceFiles = (filenames, outputFilename) => {
+    const fs = require("fs");
     let stream;
     let currentFile;
-    let dhh = fs.createWriteStream(
-      `${OUTPUT_FOLDER}${outputFilename}${AUDIO_EXTENSION}`
-    );
+    let dhh = fs.createWriteStream(outputFilename);
     let index = 0;
 
     const main = () => {
@@ -59,16 +59,16 @@ const transformFile = () => {
         console.log("[Task completed]");
         return;
       }
-      currentFile = `${filenames[index]}${AUDIO_EXTENSION}`;
+      currentFile = filenames[index];
       stream = fs.createReadStream(currentFile);
       stream.pipe(dhh, { end: false });
       stream.on("end", () => {
         console.log(currentFile + " appended");
 
-        /* const folder = currentFile.split("/")[2]; //songs
+        const folder = currentFile.split("/")[2];
         if (folder !== "songs") {
           deleteSegmentFile(currentFile);
-        } */
+        }
         index++;
         main();
       });
@@ -76,19 +76,9 @@ const transformFile = () => {
     main();
   };
 
-  const combineVoiceFiles = (filenames, outputFilename) => {
-    /*     let dhh = fs.createWriteStream(
-      `${OUTPUT_FOLDER}${outputFilename}${AUDIO_EXTENSION}`
-    );
-    let currentFile = `${filenames[index]}${AUDIO_EXTENSION}`;
-    let stream = fs.createReadStream(currentFile);
-    stream.pipe(dhh, { end: false });
-    stream.on("end", () => {
-      console.log(currentFile + " appended");
-    }); */
-
+  const combineVoiceFilesAudioconcat = (filenames, outputFilename) => {
+    // Alternative to
     audioconcat(filenames)
-      // TODO: tal vez probar a crear el output mp3 final con antelación
       .concat(outputFilename)
       .on("start", function (command) {
         console.log("ffmpeg process started:", command);
@@ -103,90 +93,93 @@ const transformFile = () => {
   };
 
   const readFile = (filename, shallAddChapterNumber) => {
-    fs.readFile(`${INPUT_FOLDER}${filename}`, UTF_8, (error, text) => {
-      if (error) {
-        throw new Error(error);
-      }
+    fs.readFile(
+      `${INPUT_FOLDER}${filename}${DOC_EXTENSION}`,
+      UTF_8,
+      (error, text) => {
+        if (error) {
+          throw new Error(error);
+        }
 
-      const addChapterNumber = (text) => {
-        const splittedFilename = filename.split("_");
-        const chapterNumber = splittedFilename[
-          splittedFilename.length - 1
-        ].replace("cap", "");
-        text = `Capítulo ${chapterNumber}: ` + text;
+        const addChapterNumber = (text) => {
+          const splittedFilename = filename.split("_");
+          const chapterNumber = splittedFilename[
+            splittedFilename.length - 1
+          ].replace("cap", "");
+          text = `Capítulo ${chapterNumber}: ` + text;
 
-        return text;
-      };
+          return text;
+        };
 
-      console.log(`${filename} read succesfully.`);
+        console.log(`${filename} read succesfully.`);
 
-      let segmentsFilenames = [openingSong]; //songs
-      //let segmentsFilenames = []; //
+        let segmentsFilenames = [openingSong];
 
-      const replaceAll = (string, search, replacement) =>
-        string.split(search).join(replacement);
+        const replaceAll = (string, search, replacement) =>
+          string.split(search).join(replacement);
 
-      let currentVoiceIndex = 1;
-      let textSegmentIndex = 0;
-      let textSubSegmentIndex = 0;
+        let currentVoiceIndex = 1;
+        let textSegmentIndex = 0;
+        let textSubSegmentIndex = 0;
 
-      if (shallAddChapterNumber) {
-        text = addChapterNumber(text);
-      }
+        if (shallAddChapterNumber) {
+          text = addChapterNumber(text);
+        }
 
-      const segmentArray = replaceAll(text, "–", "-").split("\n");
+        const segmentArray = replaceAll(text, "–", "-").split("\n");
 
-      const iterate = () => {
-        const callback = () => {
-          textSubSegmentIndex++;
+        const iterate = () => {
+          const callback = () => {
+            textSubSegmentIndex++;
 
-          if (textSubSegmentIndex < subSegmentArray.length) {
-            iterate();
-          } else {
-            textSegmentIndex++;
-
-            if (textSegmentIndex < segmentArray.length) {
-              textSubSegmentIndex = 0;
+            if (textSubSegmentIndex < subSegmentArray.length) {
               iterate();
             } else {
-              // End of iteration
-              segmentsFilenames.push(closureSong); //songs
+              textSegmentIndex++;
 
-              combineVoiceFiles(
-                segmentsFilenames,
-                `${OUTPUT_FOLDER}${filename}${AUDIO_EXTENSION}`
-              );
+              if (textSegmentIndex < segmentArray.length) {
+                textSubSegmentIndex = 0;
+                iterate();
+              } else {
+                // End of iteration
+                segmentsFilenames.push(closureSong);
+
+                combineVoiceFilesAudioconcat(
+                  segmentsFilenames,
+                  `${OUTPUT_FOLDER}${filename}${AUDIO_EXTENSION}`
+                );
+              }
             }
+          };
+
+          const subSegmentArray = segmentArray[textSegmentIndex].split("-");
+          const textSubSegment = subSegmentArray[textSubSegmentIndex];
+          if (textSubSegment && textSubSegment.trim().length > 0) {
+            const isOdd = (number) => number % 2;
+
+            currentVoiceIndex = isOdd(textSubSegmentIndex);
+
+            const segmentFilename = `${filename}_${textSegmentIndex}_${textSubSegmentIndex}`;
+            segmentsFilenames.push(
+              `${OUTPUT_FOLDER}${segmentFilename}${AUDIO_EXTENSION}`
+            );
+            //console.log(`${currentVoiceIndex}. ${textSubSegment}`); //
+            //callback(); //
+            generateVoiceFile(
+              //
+              textSubSegment,
+              segmentFilename,
+              VOICES[currentVoiceIndex],
+              callback
+            ); //
+          } else {
+            callback();
           }
         };
 
-        const subSegmentArray = segmentArray[textSegmentIndex].split("-");
-        const textSubSegment = subSegmentArray[textSubSegmentIndex];
-        if (textSubSegment && textSubSegment.trim().length > 0) {
-          const isOdd = (number) => number % 2;
-
-          currentVoiceIndex = isOdd(textSubSegmentIndex);
-
-          const segmentFilename = `${filename}_${textSegmentIndex}_${textSubSegmentIndex}`;
-          segmentsFilenames.push(
-            `${OUTPUT_FOLDER}${segmentFilename}${AUDIO_EXTENSION}`
-          );
-          //console.log(`${currentVoiceIndex}. ${textSubSegment}`); //
-          callback(); //
-          /* generateVoiceFile(
-            //
-            textSubSegment,
-            segmentFilename,
-            VOICES[currentVoiceIndex],
-            callback
-          ); // */
-        } else {
-          callback();
-        }
-      };
-
-      iterate();
-    });
+        iterate();
+      }
+    );
   };
 
   readFile(filename, shallAddChapterNumber);
