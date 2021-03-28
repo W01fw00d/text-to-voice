@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "audioconcat": "^0.1.4",
+    "fluent-ffmpeg": "^2.1.2",
     "gtts": "^0.2.1"
   },
   "scripts": {},

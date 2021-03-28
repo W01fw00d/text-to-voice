@@ -1,6 +1,7 @@
 const fs = require("fs");
 const gTTS = require("gtts");
 const audioconcat = require("audioconcat");
+var ffmpeg = require("fluent-ffmpeg");
 
 const transformFile = () => {
   const SOURCE_FOLDER = "src/";
@@ -17,7 +18,7 @@ const transformFile = () => {
 
   // ---
   const bookCode = "cad1";
-  const chapterCode = "cap14";
+  const chapterCode = "cap13";
   const shallAddChapterNumber = false;
   // ---
 
@@ -65,10 +66,10 @@ const transformFile = () => {
       stream.on("end", () => {
         console.log(currentFile + " appended");
 
-        const folder = currentFile.split("/")[2];
+        /* const folder = currentFile.split("/")[2];
         if (folder !== "songs") {
           deleteSegmentFile(currentFile);
-        }
+        } */
         index++;
         main();
       });
@@ -76,9 +77,13 @@ const transformFile = () => {
     main();
   };
 
+  let lastAction = true;
+
   const combineVoiceFilesAudioconcat = (filenames, outputFilename) => {
-    // Alternative to
+    // Alternative to combineVoiceFiles
+    // TODO: implement deleting segment files
     audioconcat(filenames)
+      //.options("-ar 44100")
       .concat(outputFilename)
       .on("start", function (command) {
         console.log("ffmpeg process started:", command);
@@ -89,7 +94,38 @@ const transformFile = () => {
       })
       .on("end", function (output) {
         console.error("Audio created in:", output);
+
+        /* if (lastAction) {
+          lastAction = false;
+          combineVoiceFilesAudioconcat(
+            //[openingSong, outputFilename, closureSong], //BREAKS
+            //[outputFilename, closureSong], // WORKS
+            `${OUTPUT_FOLDER}cad1/cap1_cad14_def${AUDIO_EXTENSION}`
+          );
+        } */
       });
+  };
+
+  const combineVoiceFilesFfmpeg = (filenames, outputFilename) => {
+    // Alternative to combineVoiceFiles
+    // TODO: implement deleting segment files
+
+    //TODO: can we print the full ffmpeg command? In case this API is lost...
+
+    let ffmpegInstance = ffmpeg();
+
+    filenames.forEach((filename) => {
+      ffmpegInstance = ffmpegInstance.input(filename);
+    });
+
+    ffmpegInstance
+      .on("error", function (err) {
+        console.log("An error occurred: " + err.message);
+      })
+      .on("end", function () {
+        console.log("ffmpeg merging finished!");
+      })
+      .mergeToFile(outputFilename, `${OUTPUT_FOLDER}cad1/temp`);
   };
 
   const readFile = (filename, shallAddChapterNumber) => {
@@ -114,6 +150,7 @@ const transformFile = () => {
         console.log(`${filename} read succesfully.`);
 
         let segmentsFilenames = [openingSong];
+        //let segmentsFilenames = [];
 
         const replaceAll = (string, search, replacement) =>
           string.split(search).join(replacement);
@@ -142,11 +179,14 @@ const transformFile = () => {
                 iterate();
               } else {
                 // End of iteration
+                //segmentsFilenames.splice(1, 0, openingSong); // trying to add song in second position, but it doesnt avoid corruption
                 segmentsFilenames.push(closureSong);
 
-                combineVoiceFilesAudioconcat(
+                //console.log("segmentsFilenames", segmentsFilenames);
+
+                combineVoiceFilesFfmpeg(
                   segmentsFilenames,
-                  `${OUTPUT_FOLDER}${filename}${AUDIO_EXTENSION}`
+                  `${OUTPUT_FOLDER}${filename}_ffmpeg${AUDIO_EXTENSION}`
                 );
               }
             }
@@ -164,14 +204,14 @@ const transformFile = () => {
               `${OUTPUT_FOLDER}${segmentFilename}${AUDIO_EXTENSION}`
             );
             //console.log(`${currentVoiceIndex}. ${textSubSegment}`); //
-            //callback(); //
-            generateVoiceFile(
+            callback(); //
+            /* generateVoiceFile(
               //
               textSubSegment,
               segmentFilename,
               VOICES[currentVoiceIndex],
               callback
-            ); //
+            );  */ //
           } else {
             callback();
           }
