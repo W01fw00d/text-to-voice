@@ -1,5 +1,6 @@
 const fs = require("fs");
 const gTTS = require("gtts");
+const audioconcat = require("audioconcat");
 
 const transformFile = () => {
   const SOURCE_FOLDER = "src/";
@@ -7,7 +8,7 @@ const transformFile = () => {
   const OUTPUT_FOLDER = SOURCE_FOLDER + "output/";
   const SONGS_FOLDER = `${INPUT_FOLDER}songs/`;
 
-  const FILE_EXTENSION = ".mp3";
+  const AUDIO_EXTENSION = ".mp3";
   const SPAIN_SPANISH = "es-es";
   const AMERICAN_SPANISH = "es-us";
   const VOICES = [SPAIN_SPANISH, AMERICAN_SPANISH];
@@ -15,18 +16,18 @@ const transformFile = () => {
 
   // ---
   const bookCode = "cad1";
-  const chapterCode = "cap15";
+  const chapterCode = "cap13";
   const shallAddChapterNumber = true;
   // ---
 
   const filename = `${bookCode}/${bookCode}_${chapterCode}`;
-  const openingSong = `${SONGS_FOLDER}opening/${bookCode}`;
-  const closureSong = `${SONGS_FOLDER}closure/${bookCode}`;
+  const openingSong = `${SONGS_FOLDER}opening/${bookCode}${AUDIO_EXTENSION}`;
+  const closureSong = `${SONGS_FOLDER}closure/${bookCode}${AUDIO_EXTENSION}`;
 
   const generateVoiceFile = (text, filename, voice, callback) => {
     var gtts = new gTTS(text, voice);
 
-    gtts.save(`${OUTPUT_FOLDER}${filename}${FILE_EXTENSION}`, (error, _) => {
+    gtts.save(`${OUTPUT_FOLDER}${filename}${AUDIO_EXTENSION}`, (error, _) => {
       if (error) {
         throw new Error(error);
       }
@@ -44,11 +45,11 @@ const transformFile = () => {
     }
   };
 
-  const combineVoiceFiles = (filenames, outputFilename) => {
+  const combineVoiceFilesStreamApproach = (filenames, outputFilename) => {
     let stream;
     let currentFile;
     let dhh = fs.createWriteStream(
-      `${OUTPUT_FOLDER}${outputFilename}${FILE_EXTENSION}`
+      `${OUTPUT_FOLDER}${outputFilename}${AUDIO_EXTENSION}`
     );
     let index = 0;
 
@@ -58,7 +59,7 @@ const transformFile = () => {
         console.log("[Task completed]");
         return;
       }
-      currentFile = `${filenames[index]}${FILE_EXTENSION}`;
+      currentFile = `${filenames[index]}${AUDIO_EXTENSION}`;
       stream = fs.createReadStream(currentFile);
       stream.pipe(dhh, { end: false });
       stream.on("end", () => {
@@ -73,6 +74,32 @@ const transformFile = () => {
       });
     };
     main();
+  };
+
+  const combineVoiceFiles = (filenames, outputFilename) => {
+    /*     let dhh = fs.createWriteStream(
+      `${OUTPUT_FOLDER}${outputFilename}${AUDIO_EXTENSION}`
+    );
+    let currentFile = `${filenames[index]}${AUDIO_EXTENSION}`;
+    let stream = fs.createReadStream(currentFile);
+    stream.pipe(dhh, { end: false });
+    stream.on("end", () => {
+      console.log(currentFile + " appended");
+    }); */
+
+    audioconcat(filenames)
+      // TODO: tal vez probar a crear el output mp3 final con antelación
+      .concat(outputFilename)
+      .on("start", function (command) {
+        console.log("ffmpeg process started:", command);
+      })
+      .on("error", function (err, stdout, stderr) {
+        console.error("Error:", err);
+        console.error("ffmpeg stderr:", stderr);
+      })
+      .on("end", function (output) {
+        console.error("Audio created in:", output);
+      });
   };
 
   const readFile = (filename, shallAddChapterNumber) => {
@@ -93,8 +120,8 @@ const transformFile = () => {
 
       console.log(`${filename} read succesfully.`);
 
-      //let segmentsFilenames = [openingSong]; //songs
-      let segmentsFilenames = [];
+      let segmentsFilenames = [openingSong]; //songs
+      //let segmentsFilenames = []; //
 
       const replaceAll = (string, search, replacement) =>
         string.split(search).join(replacement);
@@ -123,9 +150,12 @@ const transformFile = () => {
               iterate();
             } else {
               // End of iteration
-              //segmentsFilenames.push(closureSong); //songs
+              segmentsFilenames.push(closureSong); //songs
 
-              combineVoiceFiles(segmentsFilenames, filename);
+              combineVoiceFiles(
+                segmentsFilenames,
+                `${OUTPUT_FOLDER}${filename}${AUDIO_EXTENSION}`
+              );
             }
           }
         };
@@ -138,15 +168,18 @@ const transformFile = () => {
           currentVoiceIndex = isOdd(textSubSegmentIndex);
 
           const segmentFilename = `${filename}_${textSegmentIndex}_${textSubSegmentIndex}`;
-          segmentsFilenames.push(`${OUTPUT_FOLDER}${segmentFilename}`);
+          segmentsFilenames.push(
+            `${OUTPUT_FOLDER}${segmentFilename}${AUDIO_EXTENSION}`
+          );
           //console.log(`${currentVoiceIndex}. ${textSubSegment}`); //
-          //callback(); //
-          generateVoiceFile(
+          callback(); //
+          /* generateVoiceFile(
+            //
             textSubSegment,
             segmentFilename,
             VOICES[currentVoiceIndex],
             callback
-          );
+          ); // */
         } else {
           callback();
         }

@@ -7,6 +7,7 @@
     "lib": "lib"
   },
   "dependencies": {
+    "audioconcat": "^0.1.4",
     "gtts": "^0.2.1"
   },
   "scripts": {},
