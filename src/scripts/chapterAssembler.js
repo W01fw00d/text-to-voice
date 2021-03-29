@@ -9,6 +9,7 @@ module.exports = (bookCode, chapterCode, shallAddChapterNumber) => {
   const combineVoiceFiles = require("./audioFilesCombinator");
 
   const {
+    INPUT_FOLDER,
     SONGS_FOLDER,
     OUTPUT_FOLDER,
     AUDIO_EXTENSION,
@@ -21,7 +22,7 @@ module.exports = (bookCode, chapterCode, shallAddChapterNumber) => {
     console.log(`${filename} read succesfully.`);
 
     const getSongPath = (name) =>
-      `${SONGS_FOLDER}/${name}/${bookCode}.${AUDIO_EXTENSION}`;
+      `${INPUT_FOLDER}/${bookCode}/${SONGS_FOLDER}/${name}.${AUDIO_EXTENSION}`;
     const openingSong = getSongPath("opening");
     const closureSong = getSongPath("closure");
 

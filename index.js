@@ -1,7 +1,7 @@
 const assembleChapter = require("./src/scripts/chapterAssembler");
 
-const bookCode = "cad1";
-const chapterCode = "cap14";
+const bookCode = "test1";
+const chapterCode = "cap1";
 const shallAddChapterNumber = false;
 
 assembleChapter(bookCode, chapterCode, shallAddChapterNumber);

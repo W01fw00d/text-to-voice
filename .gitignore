@@ -1,6 +1,8 @@
 node_modules
 
-src/input/
-src/output/
+src/input/*
+!src/input/test1
+src/output/*
+!src/output/test1
 
 notes.txt

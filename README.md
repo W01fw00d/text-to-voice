@@ -17,11 +17,11 @@ npm install
 
 | How to use
 
-- Expected filename structure: `cad{bookCode}_cap{chapterCode}`
+- Expected filename structure: `{bookCode}_cap{chapterCode}`. You have an example in `src/input/test1/test1_cap1.txt`
 
 - Add the input text doc in `.txt` format in `src/input/{bookcode}/`
 
-- Add desired opening song in `input/songs/opening`. Add the closure song in its own folder too
+- Add desired `opening.mp3` song in `input/{bookcode}/songs/`. Add the `closure.mp3` song in its own folder too
 
 - Update `index.js` variables with your files data
 
@@ -31,6 +31,8 @@ B) `chapterCode`: Part of the input and output file name
 
 C) `shallAddChapterNumber`: Set true for adding a voice line at the beginning mentioning the chapter number
 
+- Create `output/{bookcode}` folder. It will be used to store the output audio file
+
 - Execute task:
 
 ```
@@ -38,3 +40,7 @@ node index.js
 ```
 
 - Output `.mp3` audio file will appear on `src/output/{bookcode}`
+
+| Attribution
+
+- `test1` opening and closure songs were created by @W01fw00d
