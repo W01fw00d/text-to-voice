@@ -21,7 +21,7 @@ module.exports = (bookCode, chapterCode, shallAddChapterNumber) => {
     console.log(`${filename} read succesfully.`);
 
     const getSongPath = (name) =>
-      `${SONGS_FOLDER}${name}/${bookCode}${AUDIO_EXTENSION}`;
+      `${SONGS_FOLDER}/${name}/${bookCode}.${AUDIO_EXTENSION}`;
     const openingSong = getSongPath("opening");
     const closureSong = getSongPath("closure");
 
@@ -57,7 +57,7 @@ module.exports = (bookCode, chapterCode, shallAddChapterNumber) => {
             combineVoiceFiles(
               bookCode,
               segmentsFilenames,
-              `${OUTPUT_FOLDER}${filename}${AUDIO_EXTENSION}`
+              `${OUTPUT_FOLDER}/${filename}.${AUDIO_EXTENSION}`
             );
           }
         }
@@ -69,13 +69,12 @@ module.exports = (bookCode, chapterCode, shallAddChapterNumber) => {
         currentVoiceIndex = isOdd(textSubSegmentIndex);
 
         const segmentFilename = `${filename}_${textSegmentIndex}_${textSubSegmentIndex}`;
-        segmentsFilenames.push(
-          `${OUTPUT_FOLDER}${segmentFilename}${AUDIO_EXTENSION}`
-        );
+        const segmentFilePath = `${OUTPUT_FOLDER}/${segmentFilename}.${AUDIO_EXTENSION}`;
+        segmentsFilenames.push(segmentFilePath);
 
         generateVoiceFile(
           textSubSegment,
-          `${OUTPUT_FOLDER}${segmentFilename}${AUDIO_EXTENSION}`,
+          segmentFilePath,
           VOICES[currentVoiceIndex],
           callback
         );
