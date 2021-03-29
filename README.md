@@ -1,10 +1,10 @@
 # Transform text doc to voice audio file
 
-| Based on:
+| **Based on:**
 
 - https://www.npmjs.com/package/node-gtts
 
-| Setup
+| **Setup:**
 
 - Install [ffmpeg](http://www.ffmpeg.org/). It's recommended to install full version to be sure to have all needed features
 - `[Windows]` Add `ffmpeg` and `ffprobe` to your `PATH`
@@ -15,7 +15,7 @@
 npm install
 ```
 
-| How to use
+| **How to use:**
 
 - Expected filename structure: `{bookCode}_cap{chapterCode}`. You have an example in `src/input/test1/test1_cap1.txt`
 
@@ -41,6 +41,6 @@ node index.js
 
 - Output `.mp3` audio file will appear on `src/output/{bookcode}`
 
-| Attribution
+| **Attribution:**
 
 - `test1` opening and closure songs were created by @W01fw00d
