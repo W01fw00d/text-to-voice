@@ -1,25 +1,24 @@
 {
-  "name": "earphones-game",
+  "name": "text-to-voice",
   "version": "1.0.0",
-  "description": "WIP",
+  "description": "Transform text doc to voice audio file",
   "main": "main.html",
   "directories": {
     "lib": "lib"
   },
   "dependencies": {
-    "audioconcat": "^0.1.4",
     "fluent-ffmpeg": "^2.1.2",
     "gtts": "^0.2.1"
   },
   "scripts": {},
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/W01fw00d/earphones-game.git"
+    "url": "git+https://github.com/W01fw00d/text-to-voice.git"
   },
   "author": "W01fw00d",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/W01fw00d/earphones-game/issues"
+    "url": "https://github.com/W01fw00d/text-to-voice/issues"
   },
-  "homepage": "https://github.com/W01fw00d/earphones-game#readme"
+  "homepage": "https://github.com/W01fw00d/text-to-voice#readme"
 }
