@@ -1,4 +1,4 @@
-# Trasnsform text doc to voice audio file
+# Transform text doc to voice audio file
 
 | Based on:
 
