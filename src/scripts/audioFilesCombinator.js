@@ -15,11 +15,11 @@ module.exports = (bookCode, filenames, outputFilename) => {
   );
 
   ffmpegInstanceWithInputs
-    .on("error", function (err) {
-      console.log("An error occurred: " + err.message);
+    .on("error", ({ message }) => {
+      console.log(`An error occurred: ${message}`);
     })
-    .on("end", function () {
-      console.log("ffmpeg merging finished!");
+    .on("end", () => {
+      console.log("Audio files merged!");
     })
     .mergeToFile(outputFilename, TEMP_FOLDER);
 };

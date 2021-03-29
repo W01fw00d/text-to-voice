@@ -1,5 +1,10 @@
 module.exports = (bookCode, chapterCode, shallAddChapterNumber) => {
   const { readFile } = require("./fileSystemOperator");
+  const {
+    getTextArrayFormatted,
+    addChapterNumber,
+  } = require("./textManipulator");
+  const { isOdd } = require("./mathUtils");
   const generateVoiceFile = require("./voiceGenerator");
   const combineVoiceFiles = require("./audioFilesCombinator");
 
@@ -13,26 +18,14 @@ module.exports = (bookCode, chapterCode, shallAddChapterNumber) => {
   const filename = `${bookCode}/${bookCode}_${chapterCode}`;
 
   readFile(filename, (text) => {
+    console.log(`${filename} read succesfully.`);
+
     const getSongPath = (name) =>
       `${SONGS_FOLDER}${name}/${bookCode}${AUDIO_EXTENSION}`;
     const openingSong = getSongPath("opening");
     const closureSong = getSongPath("closure");
 
-    const addChapterNumber = (text) => {
-      const splittedFilename = filename.split("_");
-      const chapterNumber = splittedFilename[
-        splittedFilename.length - 1
-      ].replace("cap", "");
-
-      return `Capítulo ${chapterNumber}: ${text}`;
-    };
-
-    console.log(`${filename} read succesfully.`);
-
     let segmentsFilenames = [openingSong];
-
-    const replaceAll = (string, search, replacement) =>
-      string.split(search).join(replacement);
 
     let currentVoiceIndex = 1;
     let textSegmentIndex = 0;
@@ -42,7 +35,7 @@ module.exports = (bookCode, chapterCode, shallAddChapterNumber) => {
       text = addChapterNumber(text);
     }
 
-    const segmentArray = replaceAll(text, "–", "-").split("\n");
+    const segmentArray = getTextArrayFormatted(text);
 
     const iterate = () => {
       const callback = () => {
@@ -73,8 +66,6 @@ module.exports = (bookCode, chapterCode, shallAddChapterNumber) => {
       const subSegmentArray = segmentArray[textSegmentIndex].split("-");
       const textSubSegment = subSegmentArray[textSubSegmentIndex];
       if (textSubSegment && textSubSegment.trim().length > 0) {
-        const isOdd = (number) => number % 2;
-
         currentVoiceIndex = isOdd(textSubSegmentIndex);
 
         const segmentFilename = `${filename}_${textSegmentIndex}_${textSubSegmentIndex}`;
