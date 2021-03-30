@@ -1,8 +1,9 @@
 # Transform text doc to voice audio file
 
-| **Based on:**
+| **Main dependencies:**
 
-- https://www.npmjs.com/package/node-gtts
+- [node-gtts](https://www.npmjs.com/package/node-gtts)
+- [fluent-ffmpeg](https://github.com/fluent-ffmpeg/node-fluent-ffmpeg)
 
 | **Setup:**
 
@@ -40,6 +41,15 @@ node index.js
 ```
 
 - Output `.mp3` audio file will appear on `src/output/{bookcode}`
+
+| **Command executed on ffmpeg:**
+
+The task executes:
+
+```
+ffmpeg -i src/input/test1/songs/opening.mp3 -i src/output/test1/test1_cap1_0_0.mp3 -i src/input/test1/songs/closure.mp3
+-y -filter_complex concat=n=73:v=0:a=1 src/output/test1/test1_cap1.mp3
+```
 
 | **Attribution:**
 

@@ -16,10 +16,10 @@ exports.readFile = (filename, callback) => {
   );
 };
 
-exports.deleteSegmentFile = (file) => {
+exports.deleteFile = (file) => {
   try {
     fs.unlinkSync(file);
-    console.log(`${file} deleted.`);
+    //console.log(`${file} deleted.`);
   } catch (error) {
     console.error(error);
   }
