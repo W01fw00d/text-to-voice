@@ -2,6 +2,7 @@ module.exports = (bookCode, chapterCode, shallAddChapterNumber) => {
   const { readFile } = require("./fileSystemOperator");
   const {
     getTextArrayFormatted,
+    getSubSegmentArrayFormatted,
     addChapterNumber,
   } = require("./textManipulator");
   const { isOdd } = require("./mathUtils");
@@ -64,19 +65,31 @@ module.exports = (bookCode, chapterCode, shallAddChapterNumber) => {
         }
       };
 
-      const subSegmentArray = segmentArray[textSegmentIndex].split("-");
-      const textSubSegment = subSegmentArray[textSubSegmentIndex];
-      if (textSubSegment && textSubSegment.trim().length > 0) {
-        currentVoiceIndex = isOdd(textSubSegmentIndex);
+      const subSegmentArray = segmentArray[textSegmentIndex]
+        .split("-")
+        .reduce((accumulator, item, index) => {
+          const voice = VOICES[isOdd(index)];
 
+          getSubSegmentArrayFormatted(item).forEach((subItem) => {
+            accumulator.push({
+              text: subItem,
+              voice,
+            });
+          });
+
+          return accumulator;
+        }, []);
+
+      const subSegment = subSegmentArray[textSubSegmentIndex];
+      if (subSegment && subSegment.text && subSegment.text.trim().length > 0) {
         const segmentFilename = `${filename}_${textSegmentIndex}_${textSubSegmentIndex}`;
         const segmentFilePath = `${OUTPUT_FOLDER}/${segmentFilename}.${AUDIO_EXTENSION}`;
         segmentsFilenames.push(segmentFilePath);
 
         generateVoiceFile(
-          textSubSegment,
+          subSegment.text,
           segmentFilePath,
-          VOICES[currentVoiceIndex],
+          subSegment.voice,
           callback
         );
       } else {
