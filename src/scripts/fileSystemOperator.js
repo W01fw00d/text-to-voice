@@ -18,7 +18,7 @@ exports.readFile = (filename, callback) => {
 
 exports.deleteFile = (file) => {
   try {
-    fs.unlinkSync(file);
+    //fs.unlinkSync(file); //TODO: Create a mock for this script, for dev use
     //console.log(`${file} deleted.`);
   } catch (error) {
     console.error(error);

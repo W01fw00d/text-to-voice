@@ -22,7 +22,9 @@ module.exports = (bookCode, filenames, outputFilename) => {
     })
     .on("end", () => {
       console.log("Audio files merged succesfully!");
-      filenames.forEach(deleteFile);
+      filenames.forEach(
+        (filename) => filename.includes("/songs/") || deleteFile(filename)
+      );
     })
     .mergeToFile(outputFilename, TEMP_FOLDER);
 };
