@@ -4,7 +4,6 @@ const INPUT_FOLDER = SOURCE_FOLDER + "/input";
 const SPAIN_SPANISH = "es-es";
 const AMERICAN_SPANISH = "es-us";
 
-// TODO: do not include '/' into folder constants
 module.exports = {
   INPUT_FOLDER,
   OUTPUT_FOLDER: `${SOURCE_FOLDER}/output`,
