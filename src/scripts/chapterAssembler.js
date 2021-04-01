@@ -37,13 +37,18 @@ module.exports = (bookCode, chapterCode, shallAddChapterNumber) => {
       (accumulator, item) => {
         if (item.trim().length > 0) {
           let voice = VOICES.NARRATOR;
-          const itemLength = item.length;
+          const length = item.length;
           const firstLetter = item[0];
           const dialogueStartDelimiter = /(?<= )\-/;
+
+          const startsWith = (word) =>
+            length > word.length && item.substring(0, word.length) === word;
+
           if (
             firstLetter === "*" ||
-            (itemLength > 3 && item.substring(0, 3) === "Por") ||
-            (itemLength > 8 && item.substring(0, 8) === "Capítulo")
+            startsWith("Por") ||
+            startsWith("Capítulo") ||
+            startsWith("CADÁVER")
           ) {
             voice = VOICES.INTRO;
           } else if (firstLetter === "-" || dialogueStartDelimiter.test(item)) {
