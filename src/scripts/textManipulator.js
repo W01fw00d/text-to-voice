@@ -12,7 +12,7 @@ exports.getTextArrayFormatted = (text) =>
     "..." /* Gets "-"" used to express stuttering and replace them by "..." to avoid confusion with dialogue delimiters */
   ).split("\n");
 
-exports.addChapterNumber = (text) => {
+exports.addChapterNumber = (filename, text) => {
   const splittedFilename = filename.split("_");
   const chapterNumber = splittedFilename[splittedFilename.length - 1].replace(
     "cap",
