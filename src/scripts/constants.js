@@ -3,6 +3,8 @@ const INPUT_FOLDER = SOURCE_FOLDER + "/input";
 
 const SPAIN_SPANISH = "es-es";
 const AMERICAN_SPANISH = "es-us";
+const PORTUGUESE = "pt";
+const ITALIAN = "it";
 
 module.exports = {
   INPUT_FOLDER,
@@ -13,5 +15,9 @@ module.exports = {
   DOC_EXTENSION: "txt",
   UTF_8: "utf8",
 
-  VOICES: [SPAIN_SPANISH, AMERICAN_SPANISH],
+  VOICES: {
+    INTRO: PORTUGUESE,
+    NARRATOR: SPAIN_SPANISH,
+    DIALOGUE: [AMERICAN_SPANISH, ITALIAN],
+  },
 };

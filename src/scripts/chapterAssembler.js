@@ -28,60 +28,80 @@ module.exports = (bookCode, chapterCode, shallAddChapterNumber) => {
 
     let segmentsFilenames = [openingSong];
 
-    let currentVoiceIndex = 1;
-    let textSegmentIndex = 0;
-    let textSubSegmentIndex = 0;
-
     if (shallAddChapterNumber) {
-      text = addChapterNumber(text);
+      text = addChapterNumber(filename, text);
     }
 
-    const segmentArray = getTextArrayFormatted(text);
+    let currentVoiceIndex = 0;
+    const formattedTextArray = getTextArrayFormatted(text).reduce(
+      (accumulator, item) => {
+        if (item.trim().length > 0) {
+          let voice = VOICES.NARRATOR;
+          const length = item.length;
+          const firstLetter = item[0];
+          const dialogueStartDelimiter = /(?<= )\-/;
+
+          const startsWith = (word) =>
+            length > word.length && item.substring(0, word.length) === word;
+
+          if (
+            firstLetter === "*" ||
+            startsWith("Por") ||
+            startsWith("Capítulo") ||
+            startsWith("CADÁVER")
+          ) {
+            voice = VOICES.INTRO;
+          } else if (firstLetter === "-" || dialogueStartDelimiter.test(item)) {
+            voice = VOICES.DIALOGUE[currentVoiceIndex];
+            currentVoiceIndex = currentVoiceIndex === 0 ? 1 : 0;
+          }
+
+          const subSegmentArray = item.split("-");
+
+          subSegmentArray.forEach((subSegmentItem, index) => {
+            if (subSegmentItem.trim().length > 0) {
+              accumulator.push({
+                text: subSegmentItem,
+                voice:
+                  subSegmentArray.length === 1 || isOdd(index)
+                    ? voice
+                    : VOICES.NARRATOR,
+              });
+            }
+          });
+        }
+
+        return accumulator;
+      },
+      []
+    );
+
+    let formattedTextIndex = 0;
 
     const iterate = () => {
       const callback = () => {
-        textSubSegmentIndex++;
+        formattedTextIndex++;
 
-        if (textSubSegmentIndex < subSegmentArray.length) {
+        if (formattedTextIndex < formattedTextArray.length) {
           iterate();
         } else {
-          textSegmentIndex++;
+          // End of iteration
+          segmentsFilenames.push(closureSong);
 
-          if (textSegmentIndex < segmentArray.length) {
-            textSubSegmentIndex = 0;
-            iterate();
-          } else {
-            // End of iteration
-            segmentsFilenames.push(closureSong);
-
-            //console.log("segmentsFilenames", segmentsFilenames);
-            combineVoiceFiles(
-              bookCode,
-              segmentsFilenames,
-              `${OUTPUT_FOLDER}/${filename}.${AUDIO_EXTENSION}`
-            );
-          }
+          combineVoiceFiles(
+            bookCode,
+            segmentsFilenames,
+            `${OUTPUT_FOLDER}/${filename}.${AUDIO_EXTENSION}`
+          );
         }
       };
 
-      const subSegmentArray = segmentArray[textSegmentIndex].split("-");
-      const textSubSegment = subSegmentArray[textSubSegmentIndex];
-      if (textSubSegment && textSubSegment.trim().length > 0) {
-        currentVoiceIndex = isOdd(textSubSegmentIndex);
+      const segment = formattedTextArray[formattedTextIndex];
+      const segmentFilename = `${filename}_${formattedTextIndex}`;
+      const segmentFilePath = `${OUTPUT_FOLDER}/${segmentFilename}.${AUDIO_EXTENSION}`;
+      segmentsFilenames.push(segmentFilePath);
 
-        const segmentFilename = `${filename}_${textSegmentIndex}_${textSubSegmentIndex}`;
-        const segmentFilePath = `${OUTPUT_FOLDER}/${segmentFilename}.${AUDIO_EXTENSION}`;
-        segmentsFilenames.push(segmentFilePath);
-
-        generateVoiceFile(
-          textSubSegment,
-          segmentFilePath,
-          VOICES[currentVoiceIndex],
-          callback
-        );
-      } else {
-        callback();
-      }
+      generateVoiceFile(segment.text, segmentFilePath, segment.voice, callback);
     };
 
     iterate();
