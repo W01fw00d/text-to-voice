@@ -46,9 +46,9 @@ module.exports = (bookCode, chapterCode, shallAddChapterNumber) => {
 
           if (
             firstLetter === "*" ||
-            startsWith("Por") ||
-            startsWith("Capítulo") ||
-            startsWith("CADÁVER")
+            startsWith("[Por") ||
+            startsWith("[Capítulo") ||
+            startsWith("[CADÁVER")
           ) {
             voice = VOICES.INTRO;
           } else if (firstLetter === "-" || dialogueStartDelimiter.test(item)) {

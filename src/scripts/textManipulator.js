@@ -19,5 +19,5 @@ exports.addChapterNumber = (filename, text) => {
     ""
   );
 
-  return `Capítulo ${chapterNumber}: ${text}`;
+  return `[Capítulo ${chapterNumber}: ${text}`;
 };
