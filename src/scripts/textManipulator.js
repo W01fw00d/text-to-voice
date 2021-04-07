@@ -4,7 +4,11 @@ const replaceAll = (string, search, replacement) =>
 exports.getTextArrayFormatted = (text) =>
   replaceAll(
     replaceAll(
-      replaceAll(text, "–", "-") /* Unify dialogue delimiters */,
+      replaceAll(
+        replaceAll(text, "»", "-"),
+        "–",
+        "-"
+      ) /* Unify dialogue delimiters */,
       /\*{4,}/ /* Reduce asterisk delimiters to avoid repetitive voice */,
       "***"
     ),
