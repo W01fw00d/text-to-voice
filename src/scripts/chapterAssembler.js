@@ -1,4 +1,4 @@
-module.exports = (bookCode, chapterCode, shallAddChapterNumber) => {
+module.exports = (bookCode, chapterCode, lang, shallAddChapterNumber) => {
   const { readFile } = require("./fileSystemOperator");
   const {
     getTextArrayFormatted,
