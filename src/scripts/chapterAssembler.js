@@ -14,8 +14,10 @@ module.exports = (bookCode, chapterCode, lang, shallAddChapterNumber) => {
     OUTPUT_FOLDER,
     AUDIO_EXTENSION,
     getVoices,
+    getTextDelimiter,
   } = require("./constants");
   let VOICES = getVoices(lang);
+  let DELIMITERS = getTextDelimiter(lang);
 
   const filename = `${bookCode}/${bookCode}_${chapterCode}`;
 
@@ -30,7 +32,7 @@ module.exports = (bookCode, chapterCode, lang, shallAddChapterNumber) => {
     let segmentsFilenames = [openingSong];
 
     if (shallAddChapterNumber) {
-      text = addChapterNumber(filename, text);
+      text = addChapterNumber(filename, text, DELIMITERS.CHAPTER_TITLE);
     }
 
     let currentVoiceIndex = 0;
@@ -47,9 +49,9 @@ module.exports = (bookCode, chapterCode, lang, shallAddChapterNumber) => {
 
           if (
             firstLetter === "*" ||
-            startsWith("[Por") ||
-            startsWith("[Capítulo") ||
-            startsWith("[CADÁVER")
+            startsWith(DELIMITERS.AUTHORS) ||
+            startsWith(DELIMITERS.CHAPTER_TITLE) ||
+            startsWith(DELIMITERS.BOOK_TITLE)
           ) {
             voice = VOICES.INTRO;
           } else if (firstLetter === "-" || dialogueStartDelimiter.test(item)) {

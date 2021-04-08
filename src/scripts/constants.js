@@ -1,10 +1,16 @@
 const SOURCE_FOLDER = "src";
 const INPUT_FOLDER = SOURCE_FOLDER + "/input";
 
+// Spanish compatible
 const SPAIN_SPANISH = "es-es";
 const AMERICAN_SPANISH = "es-us";
 const PORTUGUESE = "pt";
 const ITALIAN = "it";
+
+// English compatible
+const GB_ENGLISH = "en";
+const AMERICAN_ENGLISH = "en-us";
+const AUTRALIAN_ENGLISH = "en-au";
 
 module.exports = {
   INPUT_FOLDER,
@@ -23,9 +29,22 @@ module.exports = {
         DIALOGUE: [AMERICAN_SPANISH, ITALIAN],
       },
       en: {
-        INTRO: PORTUGUESE,
-        NARRATOR: SPAIN_SPANISH,
-        DIALOGUE: [AMERICAN_SPANISH, ITALIAN],
+        INTRO: AUTRALIAN_ENGLISH,
+        NARRATOR: GB_ENGLISH,
+        DIALOGUE: [AMERICAN_ENGLISH, AUTRALIAN_ENGLISH],
+      },
+    }[lang || "es"]),
+  getTextDelimiter: (lang) =>
+    ({
+      es: {
+        AUTHORS: "[Por",
+        CHAPTER_TITLE: "[Capítulo",
+        BOOK_TITLE: "[CADÁVER",
+      },
+      en: {
+        AUTHORS: "[By",
+        CHAPTER_TITLE: "[Chapter",
+        BOOK_TITLE: "[EXQUISITE",
       },
     }[lang || "es"]),
 };
