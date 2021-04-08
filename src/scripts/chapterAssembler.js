@@ -13,8 +13,9 @@ module.exports = (bookCode, chapterCode, lang, shallAddChapterNumber) => {
     SONGS_FOLDER,
     OUTPUT_FOLDER,
     AUDIO_EXTENSION,
-    VOICES,
+    getVoices,
   } = require("./constants");
+  let VOICES = getVoices(lang);
 
   const filename = `${bookCode}/${bookCode}_${chapterCode}`;
 

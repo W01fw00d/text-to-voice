@@ -15,9 +15,17 @@ module.exports = {
   DOC_EXTENSION: "txt",
   UTF_8: "utf8",
 
-  VOICES: {
-    INTRO: PORTUGUESE,
-    NARRATOR: SPAIN_SPANISH,
-    DIALOGUE: [AMERICAN_SPANISH, ITALIAN],
-  },
+  getVoices: (lang) =>
+    ({
+      es: {
+        INTRO: PORTUGUESE,
+        NARRATOR: SPAIN_SPANISH,
+        DIALOGUE: [AMERICAN_SPANISH, ITALIAN],
+      },
+      en: {
+        INTRO: PORTUGUESE,
+        NARRATOR: SPAIN_SPANISH,
+        DIALOGUE: [AMERICAN_SPANISH, ITALIAN],
+      },
+    }[lang || "es"]),
 };
