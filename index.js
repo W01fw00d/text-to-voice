@@ -1,7 +1,19 @@
 const assembleChapter = require("./src/scripts/chapterAssembler");
 
-const bookCode = "test1";
-const chapterCode = "cap1";
-const shallAddChapterNumber = false;
+const keys = ["bookCode", "chapterCode", "lang", "shallAddChapterNumber"];
+const {
+  bookCode,
+  chapterCode,
+  lang,
+  shallAddChapterNumber,
+} = process.argv.slice(2).reduce((accumulator, item, index) => {
+  accumulator[keys[index]] = item;
+  return accumulator;
+}, {});
 
-assembleChapter(bookCode, chapterCode, shallAddChapterNumber);
+assembleChapter(
+  bookCode,
+  chapterCode,
+  lang || "esp",
+  shallAddChapterNumber !== undefined
+);
