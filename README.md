@@ -1,5 +1,11 @@
 # Transform text doc to voice audio file
 
+| **About:**
+
+[Blog post about this project](https://thenursewhocoded.hashnode.dev/turning-text-into-voice-freedom-for-your-content)
+
+[Audio version](https://anchor.fm/gabriel-romaymachado/episodes/Turning-text-into-voice-Freedom-for-your-content-euupq2)
+
 | **Main dependencies:**
 
 - [node-gtts](https://www.npmjs.com/package/node-gtts)
